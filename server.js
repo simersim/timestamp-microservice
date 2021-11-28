@@ -24,22 +24,35 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+const jsonResponse = date => ({ unix: date.getTime(), utc: date.toUTCString() });
 
-const dateValidate = function(date){
-  return date.getTime() === date.getTime();
-}
-
-app.get("/api/:date", function(req, res){
+app.get("/api/:date", (req, res) => {
   let date = new Date(req.params.date);
-  if (!dateValidate(date)) date = new Date(req.params.date*1)
-  else if (!dateValidate(date)) {
-    res.json({error: "Invalid date"});
-    return;
+  if (/^\d*$/.test(req.params.date)) date.setTime(req.params.date);
+  if (date.getTime()) {
+    res.json(jsonResponse(date)); 
   }
-  res.json({unix: date.getTime(), utc: date.toUTCString()})
-  
-  
+  else {
+    res.json({ error: "Invalid Date" });
+  }
+
+  // let date = new Date(req.params.date);
+  // if (isNaN(date.getTime())) {
+  //   date = new Date(Number(req.params.date));
+  //   if (isNaN(date.getTime())) {
+  //     res.json({ error: "Invalid Date" });
+  //     return;
+  //   } 
+  // }
+  // res.json(jsonResponse(date));
 });
+
+
+app.get("/api", (req, res) => {
+  let currentDate = new Date();
+  res.json(jsonResponse(currentDate));
+ });
+
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
